@@ -178,7 +178,8 @@
     --font-display: "Inter Variable", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     /* 衬线 — 仅项目大厅 (Darkroom) 用于编辑式电影感大标题 */
-    --font-editorial: "Instrument Serif", "Songti SC", "Noto Serif SC", Georgia, serif;
+    /* Lora 含越南语字集；原先的 Instrument Serif 只有 latin / latin-ext，越南语带声调的字母会散开显示 */
+    --font-editorial: "Lora Variable", "Songti SC", "Noto Serif SC", Georgia, serif;
 
     /* 运行中状态点的透明度呼吸，只用于小状态点；减少动态效果时由下方全局规则停住 */
     --animate-breath: breath 1.6s ease-in-out infinite;
