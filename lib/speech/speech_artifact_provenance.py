@@ -419,7 +419,8 @@ def project_subtitle_utterances(
     _require_prepared_speech(preparation)
     values: list[SubtitleUtteranceEvidence] = []
     for utterance in preparation.utterances:
-        text = _canonical_text(utterance.text)
+        # what is shown may differ from what is voiced; the voiced text stays in ``utterance.text``
+        text = _canonical_text(utterance.subtitle or utterance.text)
         if not text:
             continue
         values.extend(

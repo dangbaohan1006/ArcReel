@@ -94,6 +94,7 @@ MESSAGES = {
     "val_utterance_kind_invalid": "{prefix} kind phải là dialogue hoặc voiceover",
     "val_utterance_text_invalid": "{prefix} text phải là chuỗi không rỗng",
     "val_utterance_speaker_type": "{prefix} speaker phải là chuỗi hoặc null",
+    "val_utterance_subtitle_type": "{prefix} subtitle phải là chuỗi hoặc null",
     "val_utterance_dialogue_speaker": "{prefix} dialogue phải có speaker không rỗng",
     "val_utterance_voiceover_speaker": "{prefix} voiceover không được có speaker",
     "val_scene_speech_overflow": (

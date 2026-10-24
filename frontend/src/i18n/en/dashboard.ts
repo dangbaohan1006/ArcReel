@@ -1964,6 +1964,8 @@ export default {
   'utterance_toggle_kind': 'Switch between dialogue and voiceover',
   'utterance_dialogue_placeholder': 'Spoken line',
   'utterance_voiceover_placeholder': 'Voiceover narration',
+  'utterance_subtitle_label': 'Subtitle',
+  'utterance_subtitle_placeholder': 'Subtitle shown on screen (optional; empty shows the spoken line)',
   'utterance_move_up': 'Move up',
   'utterance_move_down': 'Move down',
   'utterance_remove': 'Remove line',

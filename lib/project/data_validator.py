@@ -1106,6 +1106,10 @@ class DataValidator:
             text = item.get("text")
             if not isinstance(text, str) or not text.strip():
                 errors.append(_m("val_utterance_text_invalid", prefix=uprefix))
+            subtitle = item.get("subtitle")
+            if subtitle is not None and not isinstance(subtitle, str):
+                # 字幕是可选的显示文本，类型错在这里报，不等到 Pydantic 才崩
+                errors.append(_m("val_utterance_subtitle_type", prefix=uprefix))
             speaker = item.get("speaker")
             if speaker is not None and not isinstance(speaker, str):
                 # speaker 仅允许字符串或 null（镜像 Utterance.speaker: str | None 的类型约束）：

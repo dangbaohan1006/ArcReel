@@ -112,7 +112,9 @@ def load_episode_script_units(projects: ProjectManager, project_name: str, episo
                 unit_id=unit_id,
                 speech_mode=admission.mode,
                 scripted_duration_us=seconds_to_microseconds(item_duration(kind, item)),
-                subtitle_text="\n".join(utterance.text for utterance in admission.preparation.utterances),
+                subtitle_text="\n".join(
+                    utterance.subtitle or utterance.text for utterance in admission.preparation.utterances
+                ),
             )
         )
     return EpisodeScriptUnits(episode=episode, kind=kind, units=tuple(units))
