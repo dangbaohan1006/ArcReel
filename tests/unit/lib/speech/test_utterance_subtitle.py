@@ -127,3 +127,24 @@ def test_dumping_omits_an_empty_subtitle_so_stored_scripts_keep_their_shape() ->
         "text": "はい",
     }
     assert Utterance(kind="dialogue", speaker="Haru", text="はい", subtitle="Vâng").model_dump()["subtitle"] == "Vâng"
+
+
+def test_the_subtitle_never_reaches_the_video_prompt() -> None:
+    from lib.prompts.prompt_utils import render_storyboard_video_prompt
+
+    with_subtitle = {
+        "utterances": [
+            {"kind": "dialogue", "speaker": "Haru", "text": "うわっ、遅刻する！", "subtitle": "Ôi, trễ học mất rồi!"}
+        ]
+    }
+    without = {"utterances": [{"kind": "dialogue", "speaker": "Haru", "text": "うわっ、遅刻する！"}]}
+
+    rendered = render_storyboard_video_prompt("Haru runs.", with_subtitle, content_mode="drama", voice_characters=None)
+
+    assert "うわっ、遅刻する！" in rendered
+    assert "Ôi" not in rendered
+    assert "trễ học" not in rendered
+    # the request, and so the paid video's evidence, is identical whatever the subtitle says
+    assert rendered == render_storyboard_video_prompt(
+        "Haru runs.", without, content_mode="drama", voice_characters=None
+    )

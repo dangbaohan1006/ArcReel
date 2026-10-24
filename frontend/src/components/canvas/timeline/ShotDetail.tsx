@@ -179,10 +179,13 @@ const EMPTY_UTTERANCES: Utterance[] = [];
 // voiceover 的 speaker 允许缺省或 null，两种写法语义等价（无说话人）。比较前归一：
 // voiceover speaker 统一为 null、并固定键序，避免 `{}` 与 `{ speaker: null }` 判成不同，
 // 否则上游把画外音字段规范化后修改标记清不掉。
-const canonicalUtterance = (u: Utterance): Utterance =>
-  u.kind === "dialogue"
-    ? { kind: "dialogue", speaker: u.speaker, text: u.text }
-    : { kind: "voiceover", speaker: null, text: u.text };
+// 字幕同样参与比较：空白字幕等同于没有字幕（键直接去掉），否则只改字幕不会被当成修改、也就存不下来。
+const canonicalUtterance = (u: Utterance): Utterance => {
+  const subtitle = u.subtitle?.trim() ? { subtitle: u.subtitle } : {};
+  return u.kind === "dialogue"
+    ? { kind: "dialogue", speaker: u.speaker, text: u.text, ...subtitle }
+    : { kind: "voiceover", speaker: null, text: u.text, ...subtitle };
+};
 
 /**
  * 字段的等值签名。字段集合稳定，JSON 即可：键序差异只会来自同一构造路径。
