@@ -95,6 +95,37 @@ describe("ShotDetail 剧情演绎", () => {
     );
   });
 
+  it("只改字幕也算有改动：出现保存栏，并随 utterances 提交 subtitle", () => {
+    const onUpdatePrompt = vi.fn();
+    renderDetail({ onUpdatePrompt });
+    // 初始干净：没有任何未保存修改
+    expect(screen.queryByRole("button", { name: "保存" })).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getAllByLabelText("字幕")[1], { target: { value: "Cuối cùng anh cũng về." } });
+
+    fireEvent.click(screen.getByRole("button", { name: "保存" }));
+    expect(onUpdatePrompt).toHaveBeenCalledWith(
+      "E1S01",
+      expect.objectContaining({
+        utterances: [
+          { kind: "voiceover", speaker: null, text: "三年后。" },
+          { kind: "dialogue", speaker: "阿离", text: "你终于回来了。", subtitle: "Cuối cùng anh cũng về." },
+        ],
+      }),
+    );
+  });
+
+  it("清空字幕回到原样：不留下未保存修改", () => {
+    const withSubtitle = makeScene({
+      utterances: [{ kind: "dialogue", speaker: "阿离", text: "你终于回来了。", subtitle: "Anh về rồi." }],
+    });
+    render(detailElement(withSubtitle));
+    fireEvent.change(screen.getByLabelText("字幕"), { target: { value: "Anh về rồi!" } });
+    expect(screen.getByRole("button", { name: "保存" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("字幕"), { target: { value: "Anh về rồi." } });
+    expect(screen.queryByRole("button", { name: "保存" })).not.toBeInTheDocument();
+  });
+
   it("新增画外音条目后保存，随 utterances 一并提交", () => {
     const onUpdatePrompt = vi.fn();
     renderDetail({ onUpdatePrompt });
