@@ -94,6 +94,7 @@ MESSAGES = {
     "val_utterance_kind_invalid": "{prefix} kind must be dialogue or voiceover",
     "val_utterance_text_invalid": "{prefix} text must be a non-empty string",
     "val_utterance_speaker_type": "{prefix} speaker must be a string or null",
+    "val_utterance_subtitle_type": "{prefix} subtitle must be a string or null",
     "val_utterance_dialogue_speaker": "{prefix} dialogue must carry a non-empty speaker",
     "val_utterance_voiceover_speaker": "{prefix} voiceover must not carry a speaker",
     "val_scene_speech_overflow": (

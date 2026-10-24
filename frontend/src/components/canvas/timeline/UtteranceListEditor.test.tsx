@@ -116,3 +116,51 @@ describe("UtteranceListEditor", () => {
     expect(focused.value).toBe("末行画外音。");
   });
 });
+
+describe("UtteranceListEditor subtitle", () => {
+  const japanese: Utterance[] = [
+    { kind: "dialogue", speaker: "Haru", text: "うわっ、遅刻する！", subtitle: "Ôi, trễ học mất rồi!" },
+    { kind: "dialogue", speaker: "Haru", text: "はい" },
+  ];
+
+  it("shows each line's subtitle in its own box, empty when there is none", () => {
+    render(<UtteranceListEditor utterances={japanese} onChange={() => {}} />);
+    const boxes = screen.getAllByLabelText("字幕") as HTMLTextAreaElement[];
+    expect(boxes.map((box) => box.value)).toEqual(["Ôi, trễ học mất rồi!", ""]);
+  });
+
+  it("sets a subtitle without touching the spoken text", () => {
+    const onChange = vi.fn();
+    render(<UtteranceListEditor utterances={japanese} onChange={onChange} />);
+    fireEvent.change(screen.getAllByLabelText("字幕")[1], { target: { value: "Vâng" } });
+    expect(onChange).toHaveBeenLastCalledWith([japanese[0], { ...japanese[1], subtitle: "Vâng" }]);
+  });
+
+  it("drops the subtitle key when it is cleared, so the spoken line is shown", () => {
+    const onChange = vi.fn();
+    render(<UtteranceListEditor utterances={japanese} onChange={onChange} />);
+    fireEvent.change(screen.getAllByLabelText("字幕")[0], { target: { value: "  " } });
+    const [first] = onChange.mock.calls.at(-1)![0] as Utterance[];
+    expect(first).toEqual({ kind: "dialogue", speaker: "Haru", text: "うわっ、遅刻する！" });
+    expect("subtitle" in first).toBe(false);
+  });
+
+  it("keeps the subtitle when the spoken text or the speaker is edited", () => {
+    const onChange = vi.fn();
+    render(<UtteranceListEditor utterances={japanese} onChange={onChange} />);
+    fireEvent.change(screen.getByDisplayValue("うわっ、遅刻する！"), { target: { value: "あっ、遅刻だ！" } });
+    expect(onChange).toHaveBeenLastCalledWith([{ ...japanese[0], text: "あっ、遅刻だ！" }, japanese[1]]);
+    fireEvent.change(screen.getAllByDisplayValue("Haru")[0], { target: { value: "春" } });
+    expect(onChange).toHaveBeenLastCalledWith([{ ...japanese[0], speaker: "春" }, japanese[1]]);
+  });
+
+  it("keeps the subtitle when a line is switched between dialogue and voiceover", () => {
+    const onChange = vi.fn();
+    render(<UtteranceListEditor utterances={japanese} onChange={onChange} />);
+    fireEvent.click(screen.getAllByText("台词")[0]);
+    expect(onChange).toHaveBeenLastCalledWith([
+      { kind: "voiceover", speaker: null, text: "うわっ、遅刻する！", subtitle: "Ôi, trễ học mất rồi!" },
+      japanese[1],
+    ]);
+  });
+});

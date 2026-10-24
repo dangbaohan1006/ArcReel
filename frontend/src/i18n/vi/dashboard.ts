@@ -1954,6 +1954,8 @@ export default {
   'utterance_toggle_kind': 'Chuyển giữa lời thoại và lời dẫn',
   'utterance_dialogue_placeholder': 'Câu thoại',
   'utterance_voiceover_placeholder': 'Lời dẫn ngoài hình',
+  'utterance_subtitle_label': 'Phụ đề',
+  'utterance_subtitle_placeholder': 'Phụ đề hiện trên màn hình (không bắt buộc; để trống thì hiện đúng câu nói)',
   'utterance_move_up': 'Di chuyển lên',
   'utterance_move_down': 'Di chuyển xuống',
   'utterance_remove': 'Xoá lời',

@@ -1963,6 +1963,8 @@ export default {
   'utterance_toggle_kind': '在台词与画外音间切换',
   'utterance_dialogue_placeholder': '角色台词',
   'utterance_voiceover_placeholder': '画外音旁白',
+  'utterance_subtitle_label': '字幕',
+  'utterance_subtitle_placeholder': '屏幕字幕（可选；留空则显示发声内容）',
   'utterance_move_up': '上移',
   'utterance_move_down': '下移',
   'utterance_remove': '删除发声',

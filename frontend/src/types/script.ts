@@ -92,7 +92,10 @@ export interface DialogueUtterance {
   kind: "dialogue";
   /** 角色台词必带非空说话人。 */
   speaker: string;
+  /** 发声内容：进视频提示词，决定角色说什么。 */
   text: string;
+  /** 屏幕字幕（可选）：与发声内容不同（如语言不同）时填写；缺省时字幕就是 text。只影响显示。 */
+  subtitle?: string | null;
 }
 
 export interface VoiceoverUtterance {
@@ -100,6 +103,8 @@ export interface VoiceoverUtterance {
   /** 无说话人画外音：speaker 恒为 null 或缺省。 */
   speaker?: null;
   text: string;
+  /** 屏幕字幕（可选），语义同 DialogueUtterance.subtitle。 */
+  subtitle?: string | null;
 }
 
 export type Utterance = DialogueUtterance | VoiceoverUtterance;

@@ -82,6 +82,7 @@ class SpeechInputUtterance:
     speaker: str | None
     speaker_required: bool
     location: SpeechFieldLocation
+    subtitle: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +93,8 @@ class SpeechUtterance:
     text: str
     speaker: str | None
     location: SpeechFieldLocation
+    subtitle: str | None = None
+    """On-screen subtitle when it differs from ``text``; ``text`` stays what is voiced."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,6 +187,7 @@ class SpeechComposition:
                     text=entry.text,
                     speaker=speaker or None,
                     location=entry.location,
+                    subtitle=entry.subtitle,
                 )
             )
 
@@ -266,6 +270,8 @@ def _append_structured_entry(
     speaker_required: bool,
     text_location: SpeechFieldLocation,
     speaker_location: SpeechFieldLocation,
+    subtitle: object = None,
+    subtitle_location: SpeechFieldLocation | None = None,
 ) -> None:
     """Translate one structured utterance without assigning its final owner."""
 
@@ -279,12 +285,16 @@ def _append_structured_entry(
     if not speaker_required and named_speaker:
         problems.append(_parse_problem(unit_id, speaker_location))
         return
+    if subtitle is not None and not isinstance(subtitle, str):
+        problems.append(_parse_problem(unit_id, subtitle_location or text_location))
+        return
     entries.append(
         SpeechInputUtterance(
             speaker=named_speaker or None,
             speaker_required=speaker_required,
             text=text,
             location=speaker_location if speaker_required and not named_speaker else text_location,
+            subtitle=subtitle if isinstance(subtitle, str) and subtitle.strip() else None,
         )
     )
 
@@ -379,6 +389,8 @@ def adapt_drama_scene(scene: Mapping[str, object]) -> SpeechUnitSnapshot:
                 speaker_required=kind == "dialogue",
                 text_location=SpeechFieldLocation(("utterances", index, "text")),
                 speaker_location=SpeechFieldLocation(("utterances", index, "speaker")),
+                subtitle=raw.get("subtitle"),
+                subtitle_location=SpeechFieldLocation(("utterances", index, "subtitle")),
             )
     elif raw_entries is _MISSING:
         # load_script 返回的存量 drama JSON 不经过 Pydantic 读时迁移；与 DramaScene 的兼容

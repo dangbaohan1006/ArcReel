@@ -596,6 +596,31 @@ class TestDataValidator:
         assert not result.valid
         assert any("speaker" in error for error in result.errors)
 
+    def test_validate_episode_drama_accepts_a_subtitle_that_differs_from_the_spoken_text(self, tmp_path):
+        # subtitle 是可选的显示文本（发声仍是 text）：字符串或缺省都合法
+        result = self._drama_episode_with_scene(
+            tmp_path,
+            {
+                "utterances": [
+                    {
+                        "kind": "dialogue",
+                        "speaker": "姜月茴",
+                        "text": "うわっ、遅刻する！",
+                        "subtitle": "Ôi, trễ học mất rồi!",
+                    },
+                    {"kind": "dialogue", "speaker": "姜月茴", "text": "はい", "subtitle": None},
+                ]
+            },
+        )
+        assert result.valid
+
+    def test_validate_episode_drama_rejects_non_string_subtitle(self, tmp_path):
+        result = self._drama_episode_with_scene(
+            tmp_path, {"utterances": [{"kind": "dialogue", "speaker": "姜月茴", "text": "はい", "subtitle": 5}]}
+        )
+        assert not result.valid
+        assert any("subtitle" in error for error in result.errors)
+
     def test_validate_episode_drama_accepts_voiceover_blank_speaker(self, tmp_path):
         # voiceover 的空串 / 纯空白 speaker 等价「无 speaker」（与 Pydantic _normalize_speaker 同口径）→ 放行，
         # 不比权威 Pydantic 模型更严

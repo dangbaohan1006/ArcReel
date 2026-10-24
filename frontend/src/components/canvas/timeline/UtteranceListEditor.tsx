@@ -41,9 +41,16 @@ function nextKey(keys: string[]): string {
 /** Flip an utterance's kind, preserving text. dialogue→voiceover drops the
  *  speaker; voiceover→dialogue opens an empty speaker for the author to fill. */
 function flipKind(u: Utterance): Utterance {
+  const subtitle = u.subtitle?.trim() ? { subtitle: u.subtitle } : {};
   return u.kind === "dialogue"
-    ? { kind: "voiceover", speaker: null, text: u.text }
-    : { kind: "dialogue", speaker: "", text: u.text };
+    ? { kind: "voiceover", speaker: null, text: u.text, ...subtitle }
+    : { kind: "dialogue", speaker: "", text: u.text, ...subtitle };
+}
+
+/** 设置屏幕字幕：空白等于没有字幕，直接去掉该键，让保存的数据保持干净。 */
+function withSubtitle(u: Utterance, subtitle: string): Utterance {
+  const { subtitle: _previous, ...rest } = u;
+  return subtitle.trim() ? { ...rest, subtitle } : rest;
 }
 
 interface UtteranceRowProps {
@@ -114,7 +121,7 @@ function UtteranceRow({
               value={speaker}
               list={speakerListId}
               disabled={disabled}
-              onChange={(e) => onUpdate({ kind: "dialogue", speaker: e.target.value, text: value.text })}
+              onChange={(e) => onUpdate({ ...value, kind: "dialogue", speaker: e.target.value })}
               placeholder={t("speaker_placeholder")}
               aria-label={t("speaker_placeholder")}
               aria-invalid={speakerMissing}
@@ -148,12 +155,18 @@ function UtteranceRow({
         <Textarea
           value={value.text}
           disabled={disabled}
-          onChange={(e) => {
-            const text = e.target.value;
-            onUpdate(isDialogue ? { kind: "dialogue", speaker, text } : { kind: "voiceover", speaker: null, text });
-          }}
+          onChange={(e) => onUpdate({ ...value, text: e.target.value })}
           placeholder={isDialogue ? t("utterance_dialogue_placeholder") : t("utterance_voiceover_placeholder")}
           aria-label={isDialogue ? t("utterance_kind_dialogue") : t("utterance_kind_voiceover")}
+          className="min-h-8"
+        />
+
+        <Textarea
+          value={value.subtitle ?? ""}
+          disabled={disabled}
+          onChange={(e) => onUpdate(withSubtitle(value, e.target.value))}
+          placeholder={t("utterance_subtitle_placeholder")}
+          aria-label={t("utterance_subtitle_label")}
           className="min-h-8"
         />
       </div>

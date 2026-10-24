@@ -9,7 +9,16 @@ script_models.py - 剧本数据模型
 import logging
 from typing import Annotated, Any, ClassVar, Literal, get_args
 
-from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, create_model, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    create_model,
+    model_serializer,
+    model_validator,
+)
 from pydantic.json_schema import SkipJsonSchema
 
 from lib.script.script_skeleton import resolve_declared_kind
@@ -459,6 +468,11 @@ class Utterance(BaseModel):
     kind: UtteranceKind = Field(description="发声类型：dialogue=带角色归属的角色发声、voiceover=无角色归属的叙述旁白")
     speaker: str | None = Field(default=None, description="说话角色名；dialogue 必填非空、voiceover 必须为 null")
     text: str = Field(description="发声内容原文，逐字保留")
+    subtitle: str | None = Field(
+        default=None,
+        description="屏幕字幕（可选）：与发声内容语言或写法不同时填写，通常为 null；null 时字幕就是 text。"
+        "只影响显示，不进视频提示词，也不改变声音。",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -469,6 +483,18 @@ class Utterance(BaseModel):
             speaker = data.get("speaker")
             if isinstance(speaker, str) and not speaker.strip():
                 data = {**data, "speaker": None}
+            subtitle = data.get("subtitle")
+            # 空串 / 纯空白字幕等同于没有字幕：显示回落到 text
+            if isinstance(subtitle, str) and not subtitle.strip():
+                data = {**data, "subtitle": None}
+        return data
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_subtitle(self, handler: Any) -> dict[str, Any]:
+        """没有字幕时不写 ``subtitle`` 键：存量与新生成的剧本保持同一形状，不凭空多出 ``"subtitle": null``。"""
+        data = handler(self)
+        if data.get("subtitle") is None:
+            data.pop("subtitle", None)
         return data
 
     @model_validator(mode="after")
